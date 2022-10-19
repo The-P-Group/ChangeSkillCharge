@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 public class HandleChangeSkillMap {
-    private static Map<Integer, List<PlayerSkillMap>> playerMaps = new HashMap<>();
+    private static final Map<Integer, List<PlayerSkillMap>> playerMaps = new HashMap<>();
 
     public static void addPlayerSkillMap(int playerId, Avatar currentAvatar, int skillId, int nou) {
         PlayerSkillMap psm = new PlayerSkillMap(currentAvatar, skillId, nou);
 
-        if (playerMaps.containsKey(playerId)) {
-            var listMap = playerMaps.get(playerId);
+        var listMap = playerMaps.get(playerId);
+
+        if (listMap != null) {
             listMap.add(psm);
         } else {
             List<PlayerSkillMap> newList = new ArrayList<>();
@@ -31,14 +32,11 @@ public class HandleChangeSkillMap {
 
     public static void sendNotify(Player targetPlayer) {
         try {
-            CommandHandler.sendMessage(targetPlayer, String.valueOf(playerMaps.containsValue(targetPlayer.getUid())));
+            List<PlayerSkillMap> psms = playerMaps.get(targetPlayer.getUid());
 
-            if (!playerMaps.containsValue(targetPlayer.getUid())) {
-                Grasscutter.getLogger().error("Player not found!");
+            if (psms == null) {
                 return;
             }
-
-            List<PlayerSkillMap> psms = playerMaps.get(targetPlayer.getUid());
 
             for (PlayerSkillMap psm : psms) {
                 var packet = new PacketAvatarSkillMaxChargeCountNotify(psm.getAvatar(), psm.getSkillId(), psm.getNou());
